@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Gaapsavvy · Accounting AI Index</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root {
+    --teal:    #025F6B;
+    --teal-lt: #03869A;
+    --teal-bg: #E6F4F7;
+    --amber:   #E8961A;
+    --amber-lt:#FFF8ED;
+    --sage:    #6BAF9B;
+    --purple:  #7B5EA7;
+    --cream:   #F9F6F2;
+    --brown:   #3C2A1E;
+    --gray:    #64748B;
+    --white:   #FFFFFF;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior:smooth; }
+  body { font-family:'Segoe UI', system-ui, sans-serif; background:var(--cream); color:var(--brown); overflow-x:hidden; }
+
+  /* NAV */
+  nav { position:fixed; top:0; left:0; right:0; z-index:100; background:rgba(249,246,242,0.95); backdrop-filter:blur(8px); border-bottom:1px solid #E8E0D8; padding:0 2rem; height:60px; display:flex; align-items:center; justify-content:space-between; }
+  .nav-logo { font-size:1.2rem; font-weight:700; color:var(--teal); letter-spacing:-0.5px; display:flex; align-items:center; gap:8px; }
+  .nav-logo span { font-size:0.75rem; background:var(--teal); color:white; padding:2px 8px; border-radius:20px; font-weight:600; letter-spacing:0.5px; }
+  .nav-links { display:flex; gap:2rem; font-size:0.85rem; font-weight:500; color:var(--gray); }
+  .nav-links a { text-decoration:none; color:var(--gray); transition:color 0.2s; }
+  .nav-links a:hover { color:var(--teal); }
+  .nav-cta { background:var(--teal); color:white; border:none; padding:8px 18px; border-radius:6px; font-size:0.82rem; font-weight:600; cursor:pointer; transition:background 0.2s; }
+  .nav-cta:hover { background:var(--teal-lt); }
+
+  /* HERO */
+  .hero { min-height:100vh; background:linear-gradient(135deg, #012F36 0%, var(--teal) 50%, #025A65 100%); display:flex; align-items:center; padding:80px 2rem 4rem; }
+  .hero-inner { max-width:1100px; margin:0 auto; display:grid; grid-template-columns:1fr 1fr; gap:4rem; align-items:center; }
+  .hero-badge { display:inline-flex; align-items:center; gap:6px; background:rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,0.3); color:white; padding:5px 14px; border-radius:20px; font-size:0.78rem; font-weight:600; letter-spacing:0.5px; margin-bottom:1.5rem; }
+  .hero-badge::before { content:'●'; color:#4ADE80; font-size:0.6rem; }
+  h1 { font-size:3rem; font-weight:800; color:white; line-height:1.1; margin-bottom:1.2rem; letter-spacing:-1px; }
+  h1 em { color:#7EDDE8; font-style:normal; }
+  .hero-sub { font-size:1.05rem; color:rgba(255,255,255,0.75); line-height:1.7; margin-bottom:2rem; }
+  .hero-actions { display:flex; gap:1rem; flex-wrap:wrap; }
+  .btn-primary { background:white; color:var(--teal); padding:12px 24px; border-radius:8px; font-weight:700; font-size:0.9rem; border:none; cursor:pointer; transition:transform 0.15s, box-shadow 0.15s; }
+  .btn-primary:hover { transform:translateY(-2px); box-shadow:0 8px 20px rgba(0,0,0,0.2); }
+  .btn-outline { background:transparent; color:white; padding:12px 24px; border-radius:8px; font-weight:600; font-size:0.9rem; border:2px solid rgba(255,255,255,0.5); cursor:pointer; transition:border-color 0.2s; }
+  .btn-outline:hover { border-color:white; }
+
+  /* STAT CARDS */
+  .stat-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+  .stat-card { background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); border-radius:12px; padding:1.4rem; backdrop-filter:blur(4px); }
+  .stat-num { font-size:2.4rem; font-weight:800; color:white; line-height:1; }
+  .stat-num sup { font-size:1rem; }
+  .stat-label { font-size:0.8rem; color:rgba(255,255,255,0.65); margin-top:4px; line-height:1.4; }
+  .stat-card.accent { background:rgba(232,150,26,0.25); border-color:rgba(232,150,26,0.5); }
+
+  /* SECTIONS */
+  section { padding:5rem 2rem; }
+  .section-inner { max-width:1100px; margin:0 auto; }
+  .section-label { font-size:0.75rem; font-weight:700; letter-spacing:2px; color:var(--teal); text-transform:uppercase; margin-bottom:0.6rem; }
+  h2 { font-size:2rem; font-weight:800; color:var(--brown); line-height:1.2; margin-bottom:0.8rem; letter-spacing:-0.5px; }
+  .section-sub { font-size:1rem; color:var(--gray); line-height:1.7; max-width:600px; margin-bottom:3rem; }
+
+  /* STANCE SECTION */
+  .stance-section { background:white; border-bottom:1px solid #E8E0D8; }
+  .stance-grid { display:grid; grid-template-columns:1fr 1fr; gap:3rem; align-items:start; margin-bottom:3rem; }
+  .stance-narrative { padding-top:0.5rem; }
+  .stance-intro { font-size:1.05rem; color:var(--brown); line-height:1.8; margin-bottom:1rem; }
+  .stance-body { font-size:1rem; color:var(--gray); line-height:1.8; }
+  .stance-beliefs { display:flex; flex-direction:column; gap:1.2rem; }
+  .belief-card { background:var(--cream); border-radius:14px; padding:1.4rem 1.6rem; border-left:4px solid var(--teal); }
+  .belief-icon { font-size:1.3rem; margin-bottom:0.5rem; }
+  .belief-title { font-size:1rem; font-weight:700; color:var(--brown); margin-bottom:0.4rem; }
+  .belief-text { font-size:0.88rem; color:var(--gray); line-height:1.7; }
+  .stance-journey { display:flex; gap:2rem; padding:2rem 0 0; border-top:1px solid #E8E0D8; }
+  .journey-item { flex:1; display:flex; gap:1rem; align-items:flex-start; }
+  .journey-marker { width:12px; height:12px; border-radius:50%; flex-shrink:0; margin-top:4px; }
+  .journey-content { flex:1; }
+  .journey-date { font-size:0.75rem; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:var(--teal); margin-bottom:0.3rem; }
+  .journey-text { font-size:0.85rem; color:var(--gray); line-height:1.6; }
+  @media (max-width:768px) {
+    .stance-grid { grid-template-columns:1fr; }
+    .stance-journey { flex-direction:column; gap:1.5rem; }
+  }
+
+  /* MATURITY SECTION */
+  .maturity-section { background:white; }
+  .maturity-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1.5rem; }
+  .mat-card { border-radius:16px; overflow:hidden; cursor:pointer; transition:transform 0.2s, box-shadow 0.2s; }
+  .mat-card:hover { transform:translateY(-4px); box-shadow:0 16px 40px rgba(0,0,0,0.12); }
+  .mat-header { padding:1.4rem 1.4rem 1.2rem; }
+  .mat-icon { width:44px; height:44px; border-radius:10px; background:rgba(255,255,255,0.25); display:flex; align-items:center; justify-content:center; font-size:1.4rem; margin-bottom:1rem; }
+  .mat-level { font-size:0.72rem; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; opacity:0.75; margin-bottom:4px; color:white; }
+  .mat-title { font-size:1.3rem; font-weight:800; color:white; }
+  .mat-sub { font-size:0.83rem; color:rgba(255,255,255,0.8); margin-top:4px; }
+  .mat-body { padding:1.4rem; }
+  .mat-pct { font-size:2rem; font-weight:800; margin-bottom:4px; }
+  .mat-pct-label { font-size:0.78rem; color:var(--gray); margin-bottom:1rem; }
+  .mat-bar { height:6px; border-radius:3px; background:#E5E7EB; margin-bottom:1.4rem; }
+  .mat-bar-fill { height:100%; border-radius:3px; }
+  .mat-uses { list-style:none; display:flex; flex-direction:column; gap:6px; }
+  .mat-uses li { font-size:0.83rem; color:#374151; display:flex; align-items:flex-start; gap:8px; line-height:1.4; }
+  .mat-uses li::before { content:'→'; color:var(--teal); font-weight:700; flex-shrink:0; margin-top:1px; }
+  .mat-quote { margin-top:1.2rem; padding:0.9rem; border-radius:8px; font-size:0.82rem; font-style:italic; line-height:1.5; }
+
+  /* CHART SECTION */
+  .chart-section { background:var(--cream); }
+  .chart-grid { display:grid; grid-template-columns:1fr 1fr; gap:3rem; align-items:center; }
+  .chart-wrap { background:white; border-radius:16px; padding:2rem; box-shadow:0 2px 16px rgba(0,0,0,0.06); }
+  .chart-title { font-size:1rem; font-weight:700; color:var(--brown); margin-bottom:0.3rem; }
+  .chart-note { font-size:0.78rem; color:var(--gray); margin-bottom:1.2rem; }
+  .insight-list { display:flex; flex-direction:column; gap:1rem; }
+  .insight-item { display:flex; gap:1rem; align-items:flex-start; padding:1rem; background:white; border-radius:10px; box-shadow:0 1px 6px rgba(0,0,0,0.05); }
+  .insight-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; margin-top:5px; }
+  .insight-text strong { display:block; font-size:0.88rem; color:var(--brown); margin-bottom:2px; }
+  .insight-text span { font-size:0.8rem; color:var(--gray); line-height:1.5; }
+
+  /* TOOLS SECTION */
+  .tools-section { background:white; }
+  .tool-filters { display:flex; gap:0.6rem; flex-wrap:wrap; margin-bottom:2rem; }
+  .filter-btn { padding:6px 14px; border-radius:20px; border:1.5px solid #E5E7EB; background:white; font-size:0.8rem; font-weight:600; color:var(--gray); cursor:pointer; transition:all 0.15s; }
+  .filter-btn:hover, .filter-btn.active { background:var(--teal); border-color:var(--teal); color:white; }
+  .tools-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(280px,1fr)); gap:1rem; }
+  .tool-card { border:1.5px solid #E5E7EB; border-radius:12px; padding:1.2rem; transition:all 0.2s; cursor:default; }
+  .tool-card:hover { border-color:var(--teal); box-shadow:0 4px 16px rgba(2,95,107,0.1); }
+  .tool-cat { font-size:0.68rem; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; margin-bottom:0.6rem; }
+  .tool-name { font-size:1rem; font-weight:700; color:var(--brown); margin-bottom:0.4rem; }
+  .tool-desc { font-size:0.8rem; color:var(--gray); line-height:1.5; margin-bottom:0.8rem; }
+  .tool-tags { display:flex; gap:4px; flex-wrap:wrap; }
+  .tag { padding:2px 8px; border-radius:10px; font-size:0.72rem; font-weight:600; background:#F3F4F6; color:#374151; }
+
+  /* SIGNALS / QUOTES */
+  .signals-section { background:var(--brown); }
+  .signals-section h2, .signals-section .section-label { color:white; }
+  .signals-section .section-sub { color:rgba(255,255,255,0.6); }
+  .signals-section h2 { color:white; }
+  .quotes-carousel { position:relative; overflow:hidden; }
+  .quotes-track { display:flex; gap:1.5rem; transition:transform 0.4s ease; }
+  .quote-card { min-width:340px; background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.12); border-radius:16px; padding:1.8rem; flex-shrink:0; }
+  .quote-text { font-size:0.95rem; color:rgba(255,255,255,0.9); line-height:1.7; font-style:italic; margin-bottom:1.2rem; }
+  .quote-author { display:flex; align-items:center; gap:10px; }
+  .quote-avatar { width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:0.85rem; font-weight:700; color:white; flex-shrink:0; }
+  .quote-name { font-size:0.82rem; font-weight:600; color:white; }
+  .quote-role { font-size:0.75rem; color:rgba(255,255,255,0.5); }
+  .carousel-controls { display:flex; gap:0.5rem; margin-top:1.5rem; }
+  .carousel-dot { width:8px; height:8px; border-radius:50%; background:rgba(255,255,255,0.25); border:none; cursor:pointer; transition:background 0.2s; padding:0; }
+  .carousel-dot.active { background:var(--amber); width:24px; border-radius:4px; }
+
+  /* ASK THE INDEX */
+  .ask-section { background:linear-gradient(135deg, var(--teal-bg) 0%, white 100%); }
+  .ask-container { background:white; border-radius:20px; padding:2.5rem; box-shadow:0 4px 30px rgba(2,95,107,0.1); border:1px solid rgba(2,95,107,0.1); max-width:780px; margin:0 auto; }
+  .ask-label { font-size:0.72rem; font-weight:700; letter-spacing:2px; color:var(--teal); text-transform:uppercase; margin-bottom:0.5rem; }
+  .ask-title { font-size:1.4rem; font-weight:800; color:var(--brown); margin-bottom:0.4rem; }
+  .ask-sub { font-size:0.85rem; color:var(--gray); margin-bottom:1.5rem; }
+  .ask-chips { display:flex; gap:0.6rem; flex-wrap:wrap; margin-bottom:1.2rem; }
+  .ask-chip { padding:7px 14px; background:var(--teal-bg); border:1.5px solid rgba(2,95,107,0.2); border-radius:20px; font-size:0.8rem; font-weight:500; color:var(--teal); cursor:pointer; transition:all 0.15s; }
+  .ask-chip:hover, .ask-chip.selected { background:var(--teal); color:white; border-color:var(--teal); }
+  .ask-input-row { display:flex; gap:0.8rem; }
+  .ask-input { flex:1; border:1.5px solid #E5E7EB; border-radius:10px; padding:11px 16px; font-size:0.9rem; outline:none; transition:border-color 0.2s; font-family:inherit; }
+  .ask-input:focus { border-color:var(--teal); }
+  .ask-btn { background:var(--teal); color:white; border:none; border-radius:10px; padding:11px 22px; font-size:0.88rem; font-weight:700; cursor:pointer; transition:background 0.2s; white-space:nowrap; }
+  .ask-btn:hover { background:var(--teal-lt); }
+  .ask-response { margin-top:1.5rem; padding:1.2rem 1.4rem; background:var(--teal-bg); border-radius:12px; border-left:4px solid var(--teal); display:none; }
+  .ask-response.visible { display:block; animation:fadeIn 0.3s ease; }
+  .ask-response-label { font-size:0.7rem; font-weight:700; letter-spacing:1px; color:var(--teal); text-transform:uppercase; margin-bottom:0.6rem; }
+  .ask-response-text { font-size:0.88rem; color:var(--brown); line-height:1.7; }
+  .ask-response-tools { display:flex; gap:6px; flex-wrap:wrap; margin-top:0.8rem; }
+  .resp-tool { padding:3px 10px; background:var(--teal); color:white; border-radius:10px; font-size:0.75rem; font-weight:600; }
+
+  /* FLYWHEEL */
+  .flywheel-section { background:var(--cream); }
+  .flywheel { display:flex; align-items:center; justify-content:center; gap:0; flex-wrap:wrap; margin:0 auto; max-width:900px; }
+  .fly-step { text-align:center; flex:1; min-width:160px; padding:0 0.5rem; }
+  .fly-icon { width:72px; height:72px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.8rem; margin:0 auto 1rem; }
+  .fly-title { font-size:0.9rem; font-weight:700; color:var(--brown); margin-bottom:4px; }
+  .fly-desc { font-size:0.78rem; color:var(--gray); line-height:1.5; }
+  .fly-arrow { font-size:1.5rem; color:#CBD5E1; flex-shrink:0; padding:0 0.2rem; margin-top:-2rem; }
+
+  /* JOIN SECTION */
+  .join-section { background:var(--teal); text-align:center; padding:5rem 2rem; }
+  .join-section h2 { color:white; font-size:2.2rem; margin-bottom:0.8rem; }
+  .join-section p { color:rgba(255,255,255,0.75); font-size:1rem; max-width:480px; margin:0 auto 2rem; line-height:1.7; }
+  .join-actions { display:flex; gap:1rem; justify-content:center; flex-wrap:wrap; }
+
+  /* FOOTER */
+  footer { background:var(--brown); padding:2.5rem; text-align:center; }
+  .footer-logo { font-size:1.1rem; font-weight:700; color:white; margin-bottom:0.5rem; }
+  .footer-note { font-size:0.78rem; color:rgba(255,255,255,0.4); }
+
+  @keyframes fadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+  @keyframes countUp { from { opacity:0; } to { opacity:1; } }
+  .hidden { opacity:0; transform:translateY(20px); transition:opacity 0.5s ease, transform 0.5s ease; }
+  .visible-fade { opacity:1; transform:translateY(0); }
+
+  @media (max-width:1100px) {
+    .maturity-grid { grid-template-columns:1fr 1fr; }
+    .chart-grid { grid-template-columns:1fr; }
+    h1 { font-size:2.5rem; }
+  }
+  @media (max-width:768px) {
+    h1 { font-size:2rem; }
+    .hero-inner { grid-template-columns:1fr; gap:2.5rem; }
+    .maturity-grid { grid-template-columns:1fr; }
+    .chart-grid { grid-template-columns:1fr; }
+    .nav-links { display:none; }
+    .stat-grid { grid-template-columns:1fr 1fr; }
+    .fly-arrow { display:none; }
+    .flywheel { flex-direction:column; align-items:center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">
+    Gaapsavvy
+    <span>BETA</span>
+  </div>
+  <div class="nav-links">
+    <a href="#stance">Our Stance</a>
+    <a href="#maturity">AI Maturity</a>
+    <a href="#tools">Tool Tracker</a>
+    <a href="#signals">Field Signals</a>
+    <a href="#ask">Ask the Index</a>
+  </div>
+  <button class="nav-cta" onclick="document.getElementById('join').scrollIntoView({behavior:'smooth'})">Join the Community</button>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="top">
+  <div class="hero-inner">
+    <div>
+      <div class="hero-badge">LIVE · Updated March 2026</div>
+      <h1>The <em>Accounting AI</em> Intelligence Index</h1>
+      <p class="hero-sub">Real usage data from 650+ enterprise accounting practitioners across 6 sessions and 30+ companies. No vendor demos. No LinkedIn thought leadership. Just what's actually working — and what's not.</p>
+      <div class="hero-actions">
+        <button class="btn-primary" onclick="document.getElementById('maturity').scrollIntoView({behavior:'smooth'})">Explore the Index ↓</button>
+        <button class="btn-outline" onclick="document.getElementById('ask').scrollIntoView({behavior:'smooth'})">Ask the Community AI</button>
+      </div>
+    </div>
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-num"><span class="counter" data-target="650">0</span>+</div>
+        <div class="stat-label">Enterprise accounting practitioners</div>
+      </div>
+      <div class="stat-card accent">
+        <div class="stat-num"><span class="counter" data-target="30">0</span>+</div>
+        <div class="stat-label">Companies sharing across 6 sessions</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num"><span class="counter" data-target="51">0</span>+</div>
+        <div class="stat-label">Distinct AI use cases catalogued</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num"><span class="counter" data-target="34">0</span></div>
+        <div class="stat-label">Tools with verified practitioner usage</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- OUR STANCE -->
+<section class="stance-section" id="stance">
+  <div class="section-inner">
+    <div class="stance-grid">
+      <div class="stance-narrative">
+        <div class="section-label">Where We Stand</div>
+        <h2>AI in Accounting — From the Ground Up</h2>
+        <p class="stance-intro">We started GAAPSavvy with a simple observation: the people doing the work weren't in the room when AI decisions were being made. Vendors were selling. Consultants were advising. But practitioners — the ones reconciling, reviewing contracts, closing the books — were figuring it out alone.</p>
+        <p class="stance-body">So we built a space for them. And after six AI Shareforums, 650+ conversations, and 30+ companies sharing openly, here's what we know to be true:</p>
+      </div>
+      <div class="stance-beliefs">
+        <div class="belief-card">
+          <div class="belief-icon">🧭</div>
+          <div class="belief-title">Practitioners should lead this.</div>
+          <div class="belief-text">The best AI adoption happens when the people closest to the work decide what to automate, what to question, and what to keep human. Not a vendor. Not a headline. You.</div>
+        </div>
+        <div class="belief-card">
+          <div class="belief-icon">🌱</div>
+          <div class="belief-title">Small wins are real wins.</div>
+          <div class="belief-text">You don't need a budget, a strategy deck, or permission from innovation. A memo drafted in Claude. A formula written by ChatGPT. A training video made over lunch. That's where this starts — and it compounds.</div>
+        </div>
+        <div class="belief-card">
+          <div class="belief-icon">🪞</div>
+          <div class="belief-title">Honesty over hype.</div>
+          <div class="belief-text">We track what's working and what isn't. When a tool falls short, we say so. When something fails, we share that too. The index below isn't marketing — it's what our community actually reported.</div>
+        </div>
+      </div>
+    </div>
+    <div class="stance-journey">
+      <div class="journey-item">
+        <div class="journey-marker" style="background:#6BAF9B;"></div>
+        <div class="journey-content">
+          <div class="journey-date">Mid-2025</div>
+          <div class="journey-text">First AI Shareforum. Most teams were curious but hadn't started. The energy was cautious — and electric.</div>
+        </div>
+      </div>
+      <div class="journey-item">
+        <div class="journey-marker" style="background:#E8961A;"></div>
+        <div class="journey-content">
+          <div class="journey-date">Late 2025</div>
+          <div class="journey-text">Real use cases started flowing in. Contract review, close management, and AI-written scripts emerged as the breakout categories.</div>
+        </div>
+      </div>
+      <div class="journey-item">
+        <div class="journey-marker" style="background:#025F6B;"></div>
+        <div class="journey-content">
+          <div class="journey-date">Early 2026</div>
+          <div class="journey-text">Teams are connecting AI to ERPs, building custom agents, and comparing alternatives. Budget-friendly tools challenge incumbents. SOX and controls framework becomes the top question.</div>
+        </div>
+      </div>
+      <div class="journey-item">
+        <div class="journey-marker" style="background:#E8961A;"></div>
+        <div class="journey-content">
+          <div class="journey-date">March 2026</div>
+          <div class="journey-text">Claude Cowork and finance plugins arrive — enabling non-coders to build flux analysis, analytical procedures, and income statement automation in under an hour. Agentic AI becomes top priority (Dropbox). API security governance (Workato) and auditor readiness emerge as critical concerns. Build AND buy replaces build vs. buy.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MATURITY SECTION -->
+<section class="maturity-section" id="maturity">
+  <div class="section-inner">
+    <div class="section-label">AI Adoption Spectrum</div>
+    <h2>Where Are Enterprise Accounting Teams Right Now?</h2>
+    <p class="section-sub">Based on self-reported data from 5 AI Shareforums. There is no wrong level — every practitioner starts somewhere and every win compounds.</p>
+    <div class="maturity-grid">
+      <!-- Level 1 -->
+      <div class="mat-card">
+        <div class="mat-header" style="background:linear-gradient(135deg,#5a9f8c,#6BAF9B);">
+          <div class="mat-icon">🌱</div>
+          <div class="mat-level">Level 01</div>
+          <div class="mat-title">Getting Curious</div>
+          <div class="mat-sub">You're here — and it counts.</div>
+        </div>
+        <div class="mat-body">
+          <div class="mat-pct" style="color:#6BAF9B;">52%</div>
+          <div class="mat-pct-label">of community members self-report at this level</div>
+          <div class="mat-bar"><div class="mat-bar-fill" style="width:52%;background:#6BAF9B;"></div></div>
+          <ul class="mat-uses">
+            <li>ChatGPT / Claude for research and writing</li>
+            <li>Drafting memos, emails, and communications</li>
+            <li>Technical accounting Q&A and thought partnership</li>
+            <li>Data cleanup — abbreviations, formatting, normalizing</li>
+            <li>Summarizing contracts and long documents</li>
+          </ul>
+          <div class="mat-quote" style="background:#EDF7F4;color:#2E5D3E;">"Every small win sparks the next idea. Don't discount anything." — Gaapsavvy member, Dec 2025</div>
+        </div>
+      </div>
+      <!-- Level 2 -->
+      <div class="mat-card">
+        <div class="mat-header" style="background:linear-gradient(135deg,#d4820e,#E8961A);">
+          <div class="mat-icon">⚡</div>
+          <div class="mat-level">Level 02</div>
+          <div class="mat-title">Making Things Easier</div>
+          <div class="mat-sub">You're saving real time.</div>
+        </div>
+        <div class="mat-body">
+          <div class="mat-pct" style="color:#E8961A;">35%</div>
+          <div class="mat-pct-label">of community members self-report at this level</div>
+          <div class="mat-bar"><div class="mat-bar-fill" style="width:35%;background:#E8961A;"></div></div>
+          <ul class="mat-uses">
+            <li>Notebook LM for internal training videos in minutes</li>
+            <li>Google Apps Script / Power Automate via AI-written code</li>
+            <li>Contract review with Klarity, Dimely, Luminance, or Copilot</li>
+            <li>Close management with Numeric or Flowcast</li>
+            <li>Glean agents for internal revenue guidance</li>
+          </ul>
+          <div class="mat-quote" style="background:#FFF8ED;color:#7A4200;">"2 hours → 90 seconds. That's real ROI, right now." — Gaapsavvy member, Dec 2025</div>
+        </div>
+      </div>
+      <!-- Level 3 -->
+      <div class="mat-card">
+        <div class="mat-header" style="background:linear-gradient(135deg,#013A42,#025F6B);">
+          <div class="mat-icon">🚀</div>
+          <div class="mat-level">Level 03</div>
+          <div class="mat-title">Building Custom</div>
+          <div class="mat-sub">You're ahead of most teams.</div>
+        </div>
+        <div class="mat-body">
+          <div class="mat-pct" style="color:#025F6B;">13%</div>
+          <div class="mat-pct-label">of community members self-report at this level</div>
+          <div class="mat-bar"><div class="mat-bar-fill" style="width:13%;background:#025F6B;"></div></div>
+          <ul class="mat-uses">
+            <li>Claude connected to NetSuite + Box + Slack + Gmail simultaneously</li>
+            <li>Multi-agent workflows (Claude + ChatGPT cross-checking PV calcs)</li>
+            <li>Custom ASC 606 financing component calculator deployed to Vercel</li>
+            <li>N8N + Salesforce agent orchestration for deal analysis</li>
+            <li>Snowflake Cortex AI agents for operational reporting</li>
+          </ul>
+          <div class="mat-quote" style="background:#E6F4F7;color:#013A42;">"If it can be done in Excel, I'm convinced AI can do it faster." — Gaapsavvy member, Dec 2025</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CHART SECTION -->
+<section class="chart-section" id="chart">
+  <div class="section-inner">
+    <div class="section-label">Index Data</div>
+    <h2>What Functions Are Getting Automated First?</h2>
+    <p class="section-sub">Where practitioners are actually applying AI — ranked by reported adoption across the community.</p>
+    <div class="chart-grid">
+      <div class="chart-wrap">
+        <div class="chart-title">AI Application by Accounting Function</div>
+        <div class="chart-note">Self-reported usage · Q4 2025 – Q1 2026 · n=30+ companies · 6 sessions</div>
+        <canvas id="functionChart" height="220"></canvas>
+      </div>
+      <div class="insight-list">
+        <div class="insight-item">
+          <div class="insight-dot" style="background:#025F6B;"></div>
+          <div class="insight-text">
+            <strong>Research & writing is the universal entry point</strong>
+            <span>Every practitioner we spoke with, regardless of maturity level, uses AI for research, drafting, and communication. It's the lowest-friction starting point.</span>
+          </div>
+        </div>
+        <div class="insight-item">
+          <div class="insight-dot" style="background:#E8961A;"></div>
+          <div class="insight-text">
+            <strong>Contract review is the hottest — and most competitive — use case</strong>
+            <span>ASC 606 / MSA review came up in all 6 sessions. The landscape is shifting: Dimely and Luminance emerge as budget-friendly alternatives to Klarity. Glean agents being built at multiple companies. Agentic AI for GL (JE, recs, taxes) is the next frontier.</span>
+          </div>
+        </div>
+        <div class="insight-item">
+          <div class="insight-dot" style="background:#6BAF9B;"></div>
+          <div class="insight-text">
+            <strong>ERP + AI integration is the new frontier</strong>
+            <span>Benchling connected Claude to NetSuite, Box, and Slack — pulling cross-system context for flux analysis and disclosures. Numeric's AI-native "memory" feature layers prior-year context automatically. The gap: controls and SOX frameworks haven't caught up yet.</span>
+          </div>
+        </div>
+        <div class="insight-item">
+          <div class="insight-dot" style="background:#7B5EA7;"></div>
+          <div class="insight-text">
+            <strong>Automation scripting is the surprise skill</strong>
+            <span>Apps Script and Office Script — AI-written, no-code-experience required — emerged as the biggest efficiency win in multiple sessions.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TOOLS SECTION -->
+<section class="tools-section" id="tools">
+  <div class="section-inner">
+    <div class="section-label">Tool Tracker</div>
+    <h2>What Tools Are Practitioners Actually Using?</h2>
+    <p class="section-sub">Practitioner-reported only. No vendor submissions. Tools listed if mentioned by 2+ community members in active use.</p>
+    <div class="tool-filters">
+      <button class="filter-btn active" data-filter="all">All Tools</button>
+      <button class="filter-btn" data-filter="research">Research & Writing</button>
+      <button class="filter-btn" data-filter="contracts">Contract Review</button>
+      <button class="filter-btn" data-filter="close">Close Management</button>
+      <button class="filter-btn" data-filter="automation">Automation</button>
+      <button class="filter-btn" data-filter="training">Training & Docs</button>
+      <button class="filter-btn" data-filter="collections">AR & Collections</button>
+      <button class="filter-btn" data-filter="data">Data & Reporting</button>
+    </div>
+    <div class="tools-grid" id="toolsGrid"></div>
+  </div>
+</section>
+
+<!-- SIGNALS SECTION -->
+<section class="signals-section" id="signals">
+  <div class="section-inner">
+    <div class="section-label">FROM THE FIELD</div>
+    <h2>What Practitioners Are Saying</h2>
+    <p class="section-sub">Real voices from real sessions. No polish, no PR. This is what peer learning sounds like.</p>
+    <div class="quotes-carousel">
+      <div class="quotes-track" id="quotesTrack">
+        <!-- Quotes injected by JS -->
+      </div>
+    </div>
+    <div class="carousel-controls" id="carouselControls"></div>
+  </div>
+</section>
+
+<!-- ASK THE INDEX -->
+<section class="ask-section" id="ask">
+  <div class="section-inner">
+    <div class="ask-container">
+      <div class="ask-label">✦ Community Intelligence</div>
+      <div class="ask-title">Ask the Accounting AI Index</div>
+      <div class="ask-sub">Get practitioner-sourced answers from 4 sessions and 600+ members. This is a preview of what's coming.</div>
+      <div class="ask-chips">
+        <div class="ask-chip" data-q="contract">What tools work for contract review?</div>
+        <div class="ask-chip" data-q="start">Where should I start with AI?</div>
+        <div class="ask-chip" data-q="security">How do I get IT / security approval?</div>
+        <div class="ask-chip" data-q="close">What's working for close management?</div>
+        <div class="ask-chip" data-q="budget">Do I need a big budget to start?</div>
+      </div>
+      <div class="ask-input-row">
+        <input class="ask-input" id="askInput" type="text" placeholder="Ask anything about AI in accounting..." />
+        <button class="ask-btn" onclick="handleAsk()">Ask →</button>
+      </div>
+      <div class="ask-response" id="askResponse">
+        <div class="ask-response-label">📊 From the Community Index</div>
+        <div class="ask-response-text" id="askResponseText"></div>
+        <div class="ask-response-tools" id="askResponseTools"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FLYWHEEL -->
+<section class="flywheel-section" id="flywheel">
+  <div class="section-inner">
+    <div class="section-label">How It Works</div>
+    <h2>The Knowledge Flywheel</h2>
+    <p class="section-sub">Every shareforum feeds the index. Every practitioner who shares makes the intelligence stronger for everyone who comes after.</p>
+    <div class="flywheel">
+      <div class="fly-step">
+        <div class="fly-icon" style="background:#E6F4F7;">📅</div>
+        <div class="fly-title">Shareforum</div>
+        <div class="fly-desc">Practitioners meet, share live use cases, tools, and honest failures</div>
+      </div>
+      <div class="fly-arrow">→</div>
+      <div class="fly-step">
+        <div class="fly-icon" style="background:#FFF8ED;">🤖</div>
+        <div class="fly-title">AI Processing</div>
+        <div class="fly-desc">Transcripts processed automatically — tools extracted, use cases structured, quotes captured</div>
+      </div>
+      <div class="fly-arrow">→</div>
+      <div class="fly-step">
+        <div class="fly-icon" style="background:#EDF7F4;">📊</div>
+        <div class="fly-title">Index Updated</div>
+        <div class="fly-desc">The tool tracker, maturity map, and field signals update with every session</div>
+      </div>
+      <div class="fly-arrow">→</div>
+      <div class="fly-step">
+        <div class="fly-icon" style="background:#F3EEFB;">📬</div>
+        <div class="fly-title">Intelligence Out</div>
+        <div class="fly-desc">Community digest, Substack analysis, and quarterly State of AI report go out automatically</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- JOIN -->
+<section class="join-section" id="join">
+  <div class="section-label" style="color:rgba(255,255,255,0.6);">Community · No Vendors · Peer-Only</div>
+  <h2>Join 650+ Accounting Practitioners Exploring AI</h2>
+  <p>The only community where enterprise accounting teams share what's actually working — without the vendor noise.</p>
+  <div class="join-actions">
+    <button class="btn-primary" onclick="window.open('https://gaapsavvy.com','_blank')">Join Gaapsavvy →</button>
+    <button class="btn-outline" onclick="window.open('https://gaapsavvy.substack.com','_blank')">Read the Newsletter</button>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">Gaapsavvy · Accounting AI Index</div>
+  <div class="footer-note">Practitioner-only intelligence · 650+ members · 30+ companies · 6 sessions · No vendors, no consultants<br/>Built with ♥ at the Gaapsavvy AI Shareforum · Updated March 2026</div>
+</footer>
+
+<script>
+// ── DATA ─────────────────────────────────────────────────────────────────────
+
+const TOOLS = [
+  // Research & Writing
+  { name:"Claude (Anthropic)", cat:"research", catLabel:"Research & Writing", desc:"Connected to NetSuite, Box, Slack at Benchling. Cowork mode enables Excel analytics and analytical procedures without coding. Opus 4.6 model leap praised. Finance plugins for JE, rec, flux now available. Procore team built income statement automation in under an hour.", tags:["LLM","Enterprise-ready","Cowork","6 sessions"] },
+  { name:"ChatGPT (OpenAI)", cat:"research", catLabel:"Research & Writing", desc:"Foundational tool across the community. Used for Apps Script generation, formula creation, contract analysis, and order form/PVO consistency validation. Endor Labs built full OTC validation workflow with zero coding.", tags:["LLM","Coding","Cross-checking","6 sessions"] },
+  { name:"Google Gemini", cat:"research", catLabel:"Research & Writing", desc:"Custom Gems significantly improve output for memo writing and contract modifications. Best paired with NotebookLM. Dropbox using for infographics comparison. Joey expects Gemini enterprise integration to surpass current tools.", tags:["LLM","Custom Gems","Google Workspace","4 sessions"] },
+  { name:"Microsoft Copilot", cat:"research", catLabel:"Research & Writing", desc:"Used at Tanium in Power Automate for contract review. Enterprise evaluation at Workiva. Community consensus: agentic features delayed; 'not super great yet' for accounting-specific work.", tags:["Microsoft","Enterprise","Mixed reviews","2 sessions"] },
+  // Contract Review
+  { name:"Klarity", cat:"contracts", catLabel:"Contract Review", desc:"4-year implementation at Intercom. Big Four approved. However, community notes Klarity has shifted focus from core ASC 606 to Architect product. New customer deal extraction delayed to mid-2026.", tags:["ASC 606","Big Four approved","Expensive","4 sessions"] },
+  { name:"Dimely", cat:"contracts", catLabel:"Contract Review", desc:"Replaced Klarity at Checkr. More affordable and flexible. Handles order-form-to-system matching and non-standard term detection. Emerging as a strong alternative.", tags:["Contract review","Budget-friendly","Newer","1 session"] },
+  { name:"Notion AI", cat:"contracts", catLabel:"Contract Review", desc:"Custom agents built at Notion Labs for contract analysis. Trained on Big Four guidance to extract terms from PDFs and write memos. Found terms missed in manual review.", tags:["Agents","PDF extraction","Custom","1 session"] },
+  { name:"Luminance", cat:"contracts", catLabel:"Contract Review", desc:"Being piloted as budget-friendly alternative to Klarity for contract review. Early evaluation stage.", tags:["Contract review","Budget-friendly","Pilot","1 session"] },
+  { name:"Ironclad", cat:"contracts", catLabel:"Contract Review", desc:"CLM platform discussed as AI data source. Clean data in Ironclad enables downstream AI analysis. Connected with Snowflake and ChatGPT API at one company.", tags:["CLM","Data source","1 session"] },
+  // Close Management
+  { name:"Numeric", cat:"close", catLabel:"Close Management", desc:"AI-native close platform with built-in 'memory'. Now adopted at Riskified for close activities alongside NetSuite. Jordan: effectively competing with what Claude Cowork can now do for flux.", tags:["AI-native","Memory feature","Flux analysis","2 sessions"] },
+  { name:"Flowcast", cat:"close", catLabel:"Close Management", desc:"Used at Planet Labs, Intercom, and now Ping Identity for variance analysis and reconciliation. Community feedback: mixed results at Ping Identity for both variance and 1:1 matching. Known limitation: can't see revenue agreements.", tags:["Close management","Mixed results","2 sessions"] },
+  { name:"Zone Billing", cat:"close", catLabel:"Close Management", desc:"Advanced billing platform built by former NetSuite billing team. AI features on roadmap. Strong for usage-based billing. Can be standalone or add-on to NetSuite ARM.", tags:["Usage billing","NetSuite add-on","AI roadmap","1 session"] },
+  { name:"Zuora Revenue", cat:"close", catLabel:"Close Management", desc:"Revenue recognition and SSP analysis. Good if you define the logic; doesn't help determine methodology. SSP tool available as standalone without full system.", tags:["SSP analysis","Revenue rec","1 session"] },
+  // Automation
+  { name:"Google Apps Script", cat:"automation", catLabel:"Automation", desc:"The community's highest-ROI quick win. AI-written scripts for income statement flux, order form validation, dashboards, and Slack integrations. Endor Labs built OTC consistency checker; Procore built flux automation. Key concern: ownership when builder leaves (alias pattern emerging).", tags:["No-code","Free","Quick wins","5 sessions"] },
+  { name:"Alteryx", cat:"automation", catLabel:"Automation", desc:"ETL/data automation with strong ROI after ~1 year adoption curve. Used at Doximity, Workiva, and with KPMG. Not AI-native but proven for repeatable data processes.", tags:["ETL","ROI-proven","~1yr ramp","3 sessions"] },
+  { name:"N8N", cat:"automation", catLabel:"Automation", desc:"Open source workflow and agent builder. Being used for Salesforce integration and agent orchestration. Good for technical teams wanting to build custom multi-step workflows.", tags:["Open source","Agents","Salesforce","1 session"] },
+  { name:"Power Automate", cat:"automation", catLabel:"Automation", desc:"Microsoft RPA tool for document review pipelines and contract analysis workflows. Community feedback: 'really clunky' but works within Microsoft ecosystem constraints.", tags:["Microsoft","RPA","Mixed reviews","2 sessions"] },
+  // Training & Docs
+  { name:"NotebookLM", cat:"training", catLabel:"Training & Docs", desc:"Community favorite for low-barrier AI. Upload accounting policies for self-serve Q&A. Create 5-minute training videos. ASC 606 guidance knowledge base. Grounded in sources — reduces hallucination. Ping Identity now using alongside Gemini.", tags:["Free","Training","Knowledge base","4 sessions"] },
+  { name:"Descript", cat:"training", catLabel:"Training & Docs", desc:"Combined with NotebookLM output to create professional training videos in ~1 hour. ~90% of professional quality at a fraction of vendor cost.", tags:["Video","Voice","Training","1 session"] },
+  { name:"Perplexity Finance", cat:"training", catLabel:"Training & Docs", desc:"Recommended for SEC disclosure filing with EDGAR connectors. Referenced for disclosure-specific use cases.", tags:["SEC","EDGAR","Disclosures","1 session"] },
+  { name:"10clear", cat:"training", catLabel:"Training & Docs", desc:"More economical tool for disclosures. Being piloted at Doximity. Early feedback pending.", tags:["Disclosures","Budget-friendly","Pilot","1 session"] },
+  // AR & Collections
+  { name:"Tesorio", cat:"collections", catLabel:"AR & Collections", desc:"Cash application, dunning, and collections with AI. Portal agent for Ariba/Coupa invoice submission now in production. Fast feature development. Actively expanding capabilities.", tags:["Collections","Portal agent","Production","1 session"] },
+  { name:"HiRadius", cat:"collections", catLabel:"AR & Collections", desc:"AI-powered payment tagging from banks, customer behavior analysis, payment timing prediction, credit limit monitoring, and cash forecasting. Being evaluated at Tanium.", tags:["Cash application","Credit","Evaluating","1 session"] },
+  // Data & Reporting
+  { name:"Glean", cat:"data", catLabel:"Data & Reporting", desc:"Enterprise knowledge search. Multiple teams building agents. Blend Labs using with Confluence for internal research. Ping Identity getting gated rollout of agent-building. Key concern: companies restricting who can build agents due to cost.", tags:["Enterprise search","Agents","3 sessions"] },
+  { name:"Snowflake Cortex AI", cat:"data", catLabel:"Data & Reporting", desc:"Building agents for operational reporting. Key concern: token economics unclear — some queries cost 4x the manual work. Production costs need investigation before scaling.", tags:["Agents","Data warehouse","Cost concerns","1 session"] },
+  { name:"BigQuery", cat:"data", catLabel:"Data & Reporting", desc:"Used at Planet Labs for SSP analysis automation and at Elastic for data warehouse. Queries reused annually with minor updates. Needs separate instance for SOX controls.", tags:["SSP","Data warehouse","Controls","2 sessions"] },
+  { name:"Lumera", cat:"close", catLabel:"Close Management", desc:"New finance application platform founded by Soumya (ex-OpenAI controller). Building end-to-end agents for accounting infrastructure. Includes seed data generation for testing. Early stage but high potential.", tags:["Finance apps","Agents","New","1 session"] },
+  { name:"Workato", cat:"automation", catLabel:"Automation", desc:"iPaaS middleware solving API token security for finance. Blend Labs required to route through Workato instead of direct API calls. Riskified using as NetSuite→Workiva connector. Enables finance teams to use AI APIs without direct token exposure.", tags:["iPaaS","Security","API gateway","1 session"] },
+];
+
+const QUOTES = [
+  { text:"The thing that's missing is really just literally a meeting — specifically dedicated to asking each other about AI use cases.", name:"Angela", role:"Community Founder · Dec 2025", color:"#025F6B" },
+  { text:"If it can be done in Excel, I'm thoroughly convinced it can be done faster and better by AI.", name:"Dan", role:"Revenue Accounting · Dec 2025", color:"#6BAF9B" },
+  { text:"We connected Claude to NetSuite, Box, Slack — I can say 'find me everything on this customer' and it scours all our systems for context.", name:"Henry", role:"Revenue Accounting · Jan 2026", color:"#025F6B" },
+  { text:"Start with NotebookLM for facts and grounding, then take that into Gemini for the articulated memo. The combination gets you a reasonable draft pretty quickly.", name:"Henry", role:"Revenue Accounting · Jan 2026", color:"#E8961A" },
+  { text:"Flowcast can see a sales order and an invoice, but it can't see underlying revenue agreements. It doesn't understand business trends like bookings and seasonality.", name:"Nikolay", role:"Revenue Operations · Jan 2026", color:"#6BAF9B" },
+  { text:"I found it much more effective when you create a custom Gem — giving it custom instructions really confines the output to what you need.", name:"Matthew", role:"Revenue Accounting · Jan 2026", color:"#7B5EA7" },
+  { text:"As business users, we don't have access to connect any of our systems to anything. That's the real blocker.", name:"Inessa", role:"Revenue Accounting · Jan 2026", color:"#E8961A" },
+  { text:"We switched from Klarity to Dimely — more affordable, more flexible, and it handles our order-form-to-system matching well.", name:"Sam", role:"Technical Accounting · Jan 2026", color:"#025F6B" },
+  { text:"The portal agent from Tesorio is now in production — it's handling Ariba and Coupa invoice submission automatically. We're pretty excited.", name:"Stephanie", role:"Finance Operations · Jan 2026", color:"#6BAF9B" },
+  { text:"I'm always blown away by how much collectively we know. No use case is too small.", name:"Angela", role:"Community Founder · Jan 2026", color:"#7B5EA7" },
+  { text:"That portal agent thing — clicking through their silly little website — what a good use for an agent.", name:"Angela", role:"Community Founder · Jan 2026", color:"#025F6B" },
+  { text:"We built Glean agents for rev rec. It's the tool our company already uses, and my team is comfortable with it after two years.", name:"Nisha", role:"Revenue Accounting · Jan 2026", color:"#E8961A" },
+  { text:"I had no coding experience at all. I just gave ChatGPT the problem statement and kept refining it. Finally it gave me the solution. It's not perfect, but it's working fine.", name:"Abhay", role:"Finance · Mar 2026", color:"#025F6B" },
+  { text:"I told the AI, this is the only tech stack I have — give me a solution within this. Instead of being prescriptive, define your restrictions. Creative constraint.", name:"Abhay & Angela", role:"AI Shareforum · Mar 2026", color:"#6BAF9B" },
+  { text:"My person built the whole income statement flux automation in Claude in less than an hour. He had no idea how to write code — Claude wrote the whole thing.", name:"Joe", role:"Revenue Accounting · Mar 2026", color:"#E8961A" },
+  { text:"I built an analytical procedure — customer-level corridor analysis with outlier commentary — 100% built by Claude. I haven't touched this except checking the source data.", name:"Joey", role:"Revenue Accounting · Mar 2026", color:"#7B5EA7" },
+  { text:"Auditors are gonna be playing catch-up for a while. For most processes, there'll need to be a human at the end step.", name:"Joey", role:"12-Year Auditor · Mar 2026", color:"#025F6B" },
+  { text:"I really do think it's a build AND buy — augment your products and push them on features. Maintenance of custom builds is unsexy but determines what stays custom vs. productized.", name:"Angela", role:"Community Founder · Mar 2026", color:"#E8961A" },
+];
+
+const ASK_RESPONSES = {
+  contract: {
+    text: "Contract review is the most active and competitive space in our community. Klarity has a 4-year track record at Intercom (Big Four approved), but community members note it's shifted focus to Architect and new customer deal extraction is delayed to mid-2026. Budget-friendly alternatives are emerging: Dimely (replaced Klarity at Checkr — more flexible, handles order-form-to-system matching), Luminance and Dialog (being piloted for affordability). Multiple teams are also building custom agents in Glean and Notion AI for ASC 606 contract analysis. Best practice from the community: use NotebookLM to ground your analysis in actual guidance, then Gemini or Claude for the articulated memo.",
+    tools: ["Klarity", "Dimely", "Luminance", "Glean", "Notion AI", "NotebookLM"]
+  },
+  start: {
+    text: "The universal entry point is ChatGPT, Claude, or Gemini for research, drafting, and thought partnership. The newest on-ramp: Claude Cowork (desktop, launched Feb 2026) lets you point to a folder and get instant analysis — no coding. A practitioner at Endor Labs with zero coding experience built an order form validation system by telling ChatGPT his tech constraints and iterating on the problem statement. Key insight from March: instead of prescribing tools, define your restrictions and let AI find the solution within your constraints. NotebookLM remains the lowest barrier. 'Nothing is too small' came up in every session.",
+    tools: ["ChatGPT", "Claude Cowork", "Google Gemini", "NotebookLM", "Google Apps Script"]
+  },
+  security: {
+    text: "Security and IT approval remain the #1 gating factor — but it's improving fast. New in Mar 2026: API token governance emerged as a critical issue. Blend Labs now routes all AI API calls through Workato (iPaaS middleware) so finance never handles raw API tokens. Apps Script ownership is also a concern — if the builder leaves, scripts tied to their email could break. Solution: tie scripts to team aliases. Auditor readiness is still unclear: a 12-year auditor in the community says 'there'll need to be a human at the end step for most processes for a while.' COSO governance framework mentioned but unvetted.",
+    tools: ["Claude", "Workato", "Google Apps Script"]
+  },
+  close: {
+    text: "Close management is where the most sophisticated AI adoption is happening. Numeric now used at both Benchling and Riskified. Flowcast expanded to Ping Identity but getting mixed results for variance analysis and 1:1 rec matching. The March 2026 breakthrough: Procore built income statement flux automation (roll-forward + auto-populate MoM variance) in Apps Script via Claude in under an hour. Another team built analytical procedures with customer corridor analysis — 100% by Claude Cowork. The competitive pressure: Claude Cowork + finance plugins are now doing what Numeric does, for free.",
+    tools: ["Numeric", "Flowcast", "Claude Cowork", "Google Apps Script"]
+  },
+  budget: {
+    text: "No budget required. The highest-ROI wins are free or nearly free: NotebookLM (free — training videos, policy Q&A), Google Apps Script (free, AI-written), and Claude Cowork ($20/mo — builds full Excel analytics). In March 2026, a team built income statement flux automation in under an hour for free. A finance person with no coding background built an OTC validation workflow using only ChatGPT and Google Workspace. The community's new philosophy: 'build AND buy' — use free tools to augment paid products and push vendors on features. Lumera (from ex-OpenAI controller) emerging as new finance-native AI platform.",
+    tools: ["NotebookLM", "Google Apps Script", "ChatGPT", "Claude Cowork", "Lumera"]
+  }
+};
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+window.addEventListener('load', () => {
+  // Render tools, quotes, counters first (these don't depend on Chart.js)
+  renderTools('all');
+  renderQuotes();
+  animateCounters();
+  setupScrollFade();
+
+  // Chart — wrapped so a CDN failure doesn't break everything else
+  try {
+    const ctx = document.getElementById('functionChart').getContext('2d');
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: ['Research\n& Writing', 'Contract\nReview', 'Close\nMgmt', 'Automation\nScripting', 'Training\n& Docs', 'AR &\nCollections', 'Data\nReporting'],
+        datasets: [{
+          data: [92, 72, 52, 48, 44, 22, 30],
+          backgroundColor: ['#025F6B','#E8961A','#6BAF9B','#7B5EA7','#4A7FB5','#D4564F','#B5844A'],
+          borderRadius: 6,
+          borderSkipped: false,
+        }]
+      },
+      options: {
+        responsive:true, maintainAspectRatio:true, aspectRatio: 2.2,
+        plugins: { legend:{display:false}, tooltip:{ callbacks:{ label: ctx => ` ${ctx.parsed.y}% of teams` } } },
+        scales: {
+          y: { beginAtZero:true, max:100, ticks:{ stepSize:10, callback: v=>v+'%', color:'#94A3B8', font:{size:11} }, grid:{ color:'#F1F5F9' }, border:{display:false} },
+          x: { ticks:{ color:'#64748B', font:{size:11} }, grid:{display:false}, border:{display:false} }
+        }
+      }
+    });
+  } catch(e) { console.warn('Chart.js failed to load:', e); }
+});
+
+// ── TOOLS ─────────────────────────────────────────────────────────────────────
+const catColors = { research:'#025F6B', contracts:'#E8961A', close:'#6BAF9B', automation:'#7B5EA7', training:'#4A7FB5', collections:'#D4564F', data:'#B5844A' };
+
+function renderTools(filter) {
+  const grid = document.getElementById('toolsGrid');
+  const filtered = filter === 'all' ? TOOLS : TOOLS.filter(t => t.cat === filter);
+  grid.innerHTML = filtered.map(t => `
+    <div class="tool-card" style="border-top:3px solid ${catColors[t.cat]};">
+      <div class="tool-cat" style="color:${catColors[t.cat]};">${t.catLabel}</div>
+      <div class="tool-name">${t.name}</div>
+      <div class="tool-desc">${t.desc}</div>
+      <div class="tool-tags">${t.tags.map(tag=>`<span class="tag">${tag}</span>`).join('')}</div>
+    </div>
+  `).join('');
+  // Re-apply scroll fade to newly created cards
+  if (typeof setupScrollFade === 'function') setupScrollFade();
+}
+
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderTools(btn.dataset.filter);
+  });
+});
+
+// ── QUOTES CAROUSEL ───────────────────────────────────────────────────────────
+let carouselPos = 0;
+function renderQuotes() {
+  const track = document.getElementById('quotesTrack');
+  const controls = document.getElementById('carouselControls');
+  track.innerHTML = QUOTES.map(q => `
+    <div class="quote-card">
+      <div class="quote-text">"${q.text}"</div>
+      <div class="quote-author">
+        <div class="quote-avatar" style="background:${q.color};">${q.name[0]}</div>
+        <div>
+          <div class="quote-name">${q.name}</div>
+          <div class="quote-role">${q.role}</div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+  controls.innerHTML = QUOTES.map((_,i) => `<button class="carousel-dot${i===0?' active':''}" onclick="goToQuote(${i})"></button>`).join('');
+}
+
+function goToQuote(i) {
+  carouselPos = i;
+  const track = document.getElementById('quotesTrack');
+  const card = track.querySelector('.quote-card');
+  const cardWidth = card ? card.offsetWidth + 24 : 364;
+  track.style.transform = `translateX(-${i * cardWidth}px)`;
+  document.querySelectorAll('.carousel-dot').forEach((d,idx) => d.classList.toggle('active', idx===i));
+}
+
+// Auto-advance
+setInterval(() => goToQuote((carouselPos+1) % QUOTES.length), 4500);
+
+// ── ASK THE INDEX ─────────────────────────────────────────────────────────────
+document.querySelectorAll('.ask-chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    document.querySelectorAll('.ask-chip').forEach(c => c.classList.remove('selected'));
+    chip.classList.add('selected');
+    const key = chip.dataset.q;
+    document.getElementById('askInput').value = chip.textContent;
+    showResponse(key);
+  });
+});
+
+function handleAsk() {
+  const val = document.getElementById('askInput').value.toLowerCase();
+  let key = 'start';
+  if (val.includes('contract') || val.includes('msa') || val.includes('606')) key = 'contract';
+  else if (val.includes('security') || val.includes('it') || val.includes('legal') || val.includes('approv')) key = 'security';
+  else if (val.includes('close') || val.includes('flux') || val.includes('numeric') || val.includes('flowcast')) key = 'close';
+  else if (val.includes('budget') || val.includes('cost') || val.includes('free') || val.includes('money')) key = 'budget';
+  showResponse(key);
+}
+
+function showResponse(key) {
+  const data = ASK_RESPONSES[key] || ASK_RESPONSES['start'];
+  const el = document.getElementById('askResponse');
+  document.getElementById('askResponseText').textContent = data.text;
+  document.getElementById('askResponseTools').innerHTML = data.tools.map(t => `<span class="resp-tool">${t}</span>`).join('');
+  el.classList.add('visible');
+  el.scrollIntoView({ behavior:'smooth', block:'nearest' });
+}
+
+document.getElementById('askInput').addEventListener('keypress', e => {
+  if (e.key === 'Enter') handleAsk();
+});
+
+// ── COUNTERS ──────────────────────────────────────────────────────────────────
+function animateCounters() {
+  document.querySelectorAll('.counter').forEach(el => {
+    const target = +el.dataset.target;
+    let current = 0;
+    const step = Math.ceil(target / 40);
+    const timer = setInterval(() => {
+      current = Math.min(current + step, target);
+      el.textContent = current;
+      if (current >= target) clearInterval(timer);
+    }, 30);
+  });
+}
+
+// ── SCROLL FADE ───────────────────────────────────────────────────────────────
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible-fade'); });
+}, { threshold: 0.1 });
+
+function setupScrollFade() {
+  document.querySelectorAll('.mat-card, .tool-card, .insight-item, .fly-step, .belief-card, .journey-item').forEach(el => {
+    if (!el.dataset.observed) {
+      el.classList.add('hidden');
+      observer.observe(el);
+      el.dataset.observed = '1';
+    }
+  });
+}
+</script>
+</body>
+</html>
