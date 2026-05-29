@@ -208,9 +208,57 @@
     .fly-arrow { display:none; }
     .flywheel { flex-direction:column; align-items:center; }
   }
+  /* ACCESS GATE */
+  .gate-overlay { position:fixed; top:0; left:0; right:0; bottom:0; z-index:9999; background:linear-gradient(135deg, #012F36 0%, var(--teal) 50%, #025A65 100%); display:flex; align-items:center; justify-content:center; }
+  .gate-overlay.unlocked { display:none; }
+  .gate-box { background:white; border-radius:20px; padding:2.5rem 2.5rem 2rem; max-width:440px; width:90%; box-shadow:0 20px 60px rgba(0,0,0,0.3); text-align:center; }
+  .gate-logo { font-size:1.3rem; font-weight:700; color:var(--teal); margin-bottom:0.3rem; }
+  .gate-logo span { font-size:0.65rem; background:var(--teal); color:white; padding:2px 7px; border-radius:12px; font-weight:600; margin-left:6px; vertical-align:middle; }
+  .gate-title { font-size:1.1rem; font-weight:800; color:var(--brown); margin:1rem 0 0.3rem; }
+  .gate-sub { font-size:0.82rem; color:var(--gray); line-height:1.6; margin-bottom:1.5rem; }
+  .gate-field { width:100%; border:1.5px solid #E5E7EB; border-radius:10px; padding:11px 14px; font-size:0.88rem; font-family:inherit; outline:none; transition:border-color 0.2s; margin-bottom:0.7rem; box-sizing:border-box; }
+  .gate-field:focus { border-color:var(--teal); }
+  .gate-field::placeholder { color:#A0AEC0; }
+  .gate-btn { width:100%; background:var(--teal); color:white; border:none; border-radius:10px; padding:12px; font-size:0.9rem; font-weight:700; cursor:pointer; transition:background 0.2s; margin-top:0.3rem; }
+  .gate-btn:hover { background:var(--teal-lt); }
+  .gate-error { color:#E53E3E; font-size:0.78rem; margin-top:0.5rem; display:none; }
+  .gate-error.show { display:block; }
+  .gate-note { font-size:0.72rem; color:var(--gray); margin-top:1.2rem; line-height:1.5; }
+  .gate-note a { color:var(--teal); text-decoration:none; }
 </style>
 </head>
 <body>
+
+<!-- ACCESS GATE OVERLAY -->
+<div class="gate-overlay" id="gateOverlay">
+  <div class="gate-box">
+    <div class="gate-logo">Gaapsavvy <span>BETA</span></div>
+    <div class="gate-title">Accounting AI Intelligence Index</div>
+    <div class="gate-sub">Real usage data from 1,800+ enterprise accounting practitioners. Enter your access code to view.</div>
+    <form id="gateForm" onsubmit="return handleGate(event)">
+      <input class="gate-field" type="text" id="gateCode" placeholder="Access code" required autocomplete="off" />
+      <button class="gate-btn" type="submit">View the Index</button>
+      <div class="gate-error" id="gateError">Incorrect access code. Contact your community lead for access.</div>
+    </form>
+    <div class="gate-note">Don't have a code? <a href="https://gaapsavvy.com" target="_blank">Join the community</a> to get access.</div>
+  </div>
+</div>
+
+<script>
+function handleGate(e) {
+  e.preventDefault();
+  var code = document.getElementById('gateCode').value.trim().toLowerCase().replace(/\s/g,'');
+  if (code === 'gaapsavvyearlyaccess') {
+    document.getElementById('gateOverlay').classList.add('unlocked');
+    document.body.style.overflow = '';
+  } else {
+    document.getElementById('gateError').classList.add('show');
+  }
+  return false;
+}
+// Prevent scrolling while gate is showing
+document.body.style.overflow = 'hidden';
+</script>
 
 <!-- NAV -->
 <nav>
